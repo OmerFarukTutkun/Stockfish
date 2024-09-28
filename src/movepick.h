@@ -182,6 +182,10 @@ using NonPawnCorrectionHistory =
 // the current one given a previous one.
 using ContinuationCorrectionHistory = Stats<PieceToCorrectionHistory, NOT_USED, PIECE_NB, SQUARE_NB>;
 
+// ContinuationCorrectionHistory is the combined correction history of a given pair of moves, usually
+// the current one given a previous one.
+using ContinuationCorrectionHistory = Stats<PieceToCorrectionHistory, NOT_USED, PIECE_NB, SQUARE_NB>;
+
 // The MovePicker class is used to pick one pseudo-legal move at a time from the
 // current position. The most important method is next_move(), which emits one
 // new pseudo-legal move on every call, until there are no moves left, when
