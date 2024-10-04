@@ -88,9 +88,10 @@ Value to_corrected_static_eval(Value v, const Worker& w, const Position& pos,Sta
     const auto  micv  = w.minorPieceCorrectionHistory[us][minor_piece_index(pos)];
     const auto  wnpcv = w.nonPawnCorrectionHistory[WHITE][us][non_pawn_index<WHITE>(pos)];
     const auto  bnpcv = w.nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)];
-    auto  cntcv = (*(ss - 2)->continuationCorrectionHistory)[NO_PIECE][SQ_A1];
+    int  cntcv = 1;
+
     if(m.is_ok())
-        cntcv = (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()];
+        cntcv = int( (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()]);
 
     const auto  cv =
       (5932 * pcv + 2994 * mcv + 3269 * macv + 5660 * micv + 6237 * (wnpcv + bnpcv) + cntcv*5555) / 131072;
