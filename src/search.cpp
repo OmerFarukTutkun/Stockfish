@@ -1034,6 +1034,9 @@ moves_loop:  // When in check, search starts here
 
                 lmrDepth += history / 3653;
 
+                //reduce less if corrhist score is high
+                lmrDepth += std::abs(ss->staticEval - unadjustedStaticEval) > 111;
+
                 Value futilityValue =
                   ss->staticEval + (bestValue < ss->staticEval - 51 ? 145 : 49) + 144 * lmrDepth;
 
