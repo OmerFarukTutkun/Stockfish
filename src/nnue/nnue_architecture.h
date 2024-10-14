@@ -31,7 +31,6 @@
 #include "layers/clipped_relu.h"
 #include "layers/sqr_clipped_relu.h"
 #include "nnue_common.h"
-
 namespace Stockfish::Eval::NNUE {
 
 // Input features used in evaluation function
@@ -91,7 +90,20 @@ struct NetworkArchitecture {
             && fc_2.write_parameters(stream);
     }
 
-    std::int32_t propagate(const TransformedFeatureType* transformedFeatures) {
+    template<typename T>
+    Key calculate_key(T * input, int dim)
+    {
+        Key key{};
+        T zero{};
+        dim = std::min(int(sizeof(Key)), dim);
+        for(int i=0; i<dim; i++)
+        {
+            key |= (input[i] > zero) < i;
+        }
+        return key;
+    }
+
+    std::int32_t propagate(const TransformedFeatureType* transformedFeatures, Key& key) {
         struct alignas(CacheLineSize) Buffer {
             alignas(CacheLineSize) typename decltype(fc_0)::OutputBuffer fc_0_out;
             alignas(CacheLineSize) typename decltype(ac_sqr_0)::OutputType
@@ -121,6 +133,8 @@ struct NetworkArchitecture {
         fc_1.propagate(buffer.ac_sqr_0_out, buffer.fc_1_out);
         ac_1.propagate(buffer.fc_1_out, buffer.ac_1_out);
         fc_2.propagate(buffer.ac_1_out, buffer.fc_2_out);
+
+        key = calculate_key<typename decltype(ac_1)::OutputType>(buffer.ac_1_out, FC_1_OUTPUTS);
 
         // buffer.fc_0_out[FC_0_OUTPUTS] is such that 1.0 is equal to 127*(1<<WeightScaleBits) in
         // quantized form, but we want 1.0 to be equal to 600*OutputScale

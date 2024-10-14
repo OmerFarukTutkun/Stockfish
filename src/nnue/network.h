@@ -63,7 +63,7 @@ class Network {
     void load(const std::string& rootDirectory, std::string evalfilePath);
     bool save(const std::optional<std::string>& filename) const;
 
-    NetworkOutput evaluate(const Position&                         pos,
+    NetworkOutput evaluate(Position&                         pos,
                            AccumulatorCaches::Cache<FTDimensions>* cache) const;
 
 

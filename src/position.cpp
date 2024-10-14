@@ -340,6 +340,7 @@ void Position::set_state() const {
     st->pawnKey                                   = Zobrist::noPawns;
     st->nonPawnMaterial[WHITE] = st->nonPawnMaterial[BLACK] = VALUE_ZERO;
     st->checkersBB = attackers_to(square<KING>(sideToMove)) & pieces(~sideToMove);
+    st->nnue_key = 0;
 
     set_check_info();
 
@@ -692,6 +693,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
     // our state pointer to point to the new (ready to be updated) state.
     std::memcpy(&newSt, st, offsetof(StateInfo, key));
     newSt.previous = st;
+    newSt.nnue_key = 0;
     st->next       = &newSt;
     st             = &newSt;
 
@@ -1020,6 +1022,7 @@ void Position::do_null_move(StateInfo& newSt, TranspositionTable& tt) {
     std::memcpy(&newSt, st, offsetof(StateInfo, accumulatorBig));
 
     newSt.previous = st;
+    newSt.nnue_key = 0;
     st->next       = &newSt;
     st             = &newSt;
 

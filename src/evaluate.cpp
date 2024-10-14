@@ -53,7 +53,7 @@ bool Eval::use_smallnet(const Position& pos) {
 // Evaluate is the evaluator for the outer world. It returns a static evaluation
 // of the position from the point of view of the side to move.
 Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
-                     const Position&                pos,
+                     Position&                pos,
                      Eval::NNUE::AccumulatorCaches& caches,
                      int                            optimism) {
 

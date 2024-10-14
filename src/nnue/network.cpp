@@ -206,12 +206,13 @@ bool Network<Arch, Transformer>::save(const std::optional<std::string>& filename
 
 template<typename Arch, typename Transformer>
 NetworkOutput
-Network<Arch, Transformer>::evaluate(const Position&                         pos,
+Network<Arch, Transformer>::evaluate(Position&                         pos,
                                      AccumulatorCaches::Cache<FTDimensions>* cache) const {
     // We manually align the arrays on the stack because with gcc < 9.3
     // overaligning stack variables with alignas() doesn't work correctly.
 
     constexpr uint64_t alignment = CacheLineSize;
+    Key nnue_key{};
 
 #if defined(ALIGNAS_ON_STACK_VARIABLES_BROKEN)
     TransformedFeatureType
@@ -225,10 +226,10 @@ Network<Arch, Transformer>::evaluate(const Position&                         pos
 #endif
 
     ASSERT_ALIGNED(transformedFeatures, alignment);
-
     const int  bucket     = (pos.count<ALL_PIECES>() - 1) / 4;
     const auto psqt       = featureTransformer->transform(pos, cache, transformedFeatures, bucket);
-    const auto positional = network[bucket].propagate(transformedFeatures);
+    const auto positional = network[bucket].propagate(transformedFeatures,nnue_key);
+    pos.set_nnue_key(nnue_key);
     return {static_cast<Value>(psqt / OutputScale), static_cast<Value>(positional / OutputScale)};
 }
 
@@ -288,6 +289,7 @@ Network<Arch, Transformer>::trace_evaluate(const Position&                      
     // We manually align the arrays on the stack because with gcc < 9.3
     // overaligning stack variables with alignas() doesn't work correctly.
     constexpr uint64_t alignment = CacheLineSize;
+    Key nnue_key{};
 
 #if defined(ALIGNAS_ON_STACK_VARIABLES_BROKEN)
     TransformedFeatureType
@@ -308,7 +310,7 @@ Network<Arch, Transformer>::trace_evaluate(const Position&                      
     {
         const auto materialist =
           featureTransformer->transform(pos, cache, transformedFeatures, bucket);
-        const auto positional = network[bucket].propagate(transformedFeatures);
+        const auto positional = network[bucket].propagate(transformedFeatures,nnue_key);
 
         t.psqt[bucket]       = static_cast<Value>(materialist / OutputScale);
         t.positional[bucket] = static_cast<Value>(positional / OutputScale);
