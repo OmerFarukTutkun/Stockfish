@@ -94,11 +94,13 @@ struct NetworkArchitecture {
     Key calculate_key(T * input, int dim)
     {
         Key key{};
+        Key one{1};
         T zero{};
-        dim = std::min(int(sizeof(Key)), dim);
+        dim = std::min(int(8*sizeof(Key)), dim);
         for(int i=0; i<dim; i++)
         {
-            key |= (input[i] > zero) < i;
+            if(input[i] > zero)
+                key |= one << i;
         }
         return key;
     }
